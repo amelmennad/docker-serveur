@@ -1,0 +1,45 @@
+version: "3"
+# configuration des services comprenant l’ensemble des définitions des containers docker.
+
+services:
+  # container Node préalablement créé
+  serveur:
+    container_name: serveur
+    build: . # Localisation du Dockerfile dans notre cas dans le dossier racine
+    ports:
+      - 3000:3000 # Nous exposons le port 8800
+    volumes:
+      - ./:/usr/src/app # Le volume du WORKDIR
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development # Nous pouvons définir ici plusieurs variables d'environnement
+      - HOST=localhost
+      - PORT=3000
+  
+  ppr:
+    container_name: ppr
+    build: . # Localisation du Dockerfile dans notre cas dans le dossier racine
+    ports:
+      - 8000:8000 # Nous exposons le port 8800
+    volumes:
+      - ./:/usr/src/app # Le volume du WORKDIR
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=production
+      - HOST=127.0.0.1
+      - PORT=8000
+  #création d'un container mongo (ici il y a uniquement besoin de la configuration par défaut de l’image et non d’une configuration Docker particulière) et ajouter ce dernier comme une dépendance de notre container api.
+  mongo:
+    image: mongo:3.6
+    volumes:
+      - mongo-storage:/data/db # Nous pouvons ajouter un volume à ce container afin de stocker les données de la base
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+
+# Définition des volumes:
+volumes:
+  # ajouter du container mongo comme dépendance de container api.
+  mongo-storage:
+    driver: local
